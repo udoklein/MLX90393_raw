@@ -28,7 +28,7 @@ static_assert(__BYTE_ORDER__ == __BYTE_ORDER__,
 
 #define MLX90393_MAJOR_VERSION 1
 #define MLX90393_MINOR_VERSION 0
-#define MLX90393_PATCH_VERSION 0
+#define MLX90393_PATCH_VERSION 1
 
 // https://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 #define EXPAND_THEN_STRINGIFY(s) STRINGIFY(s)
