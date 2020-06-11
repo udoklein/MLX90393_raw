@@ -28,7 +28,7 @@ static_assert(__BYTE_ORDER__ == __BYTE_ORDER__,
 
 #define MLX90393_MAJOR_VERSION 1
 #define MLX90393_MINOR_VERSION 0
-#define MLX90393_PATCH_VERSION 1
+#define MLX90393_PATCH_VERSION 2
 
 // https://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 #define EXPAND_THEN_STRINGIFY(s) STRINGIFY(s)
@@ -142,7 +142,6 @@ struct status_t {
     explicit operator uint8_t const ();
 };
 
-
 union status_u {
     status_t flags;
     uint8_t data;
@@ -154,6 +153,10 @@ status_t status(uint8_t s) {
     return u.flags;
 };
 
+// Notice that this status can not be returned by MLX90393
+// because it would indicate reset + error + burst_mode + woc_mode + sm_mode
+// all at the same time.
+// Hence we use this status to indicate communication failures.
 const status_t ERROR = {1, 1, 1, 1, 1, 1, 1, 1};
 
 struct zyxt_t {

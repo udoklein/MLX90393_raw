@@ -79,424 +79,428 @@ void space() {
 }
 
 namespace dump {
-
-void nibble(uint8_t data) {
-    print(data, HEX);
-}
-
-void hex(uint8_t data) {
-    nibble(data >> 4);
-    nibble(data & 0xf);
-}
-
-void hex(uint16_t data) {
-    hex(highByte(data));
-    hex(lowByte(data));
-}
-
-void bin(uint8_t data) {
-    for (int8_t i=7; i>=0; --i) {
-        print((data >> i) & 1);
+    void nibble(uint8_t data) {
+        print(data, HEX);
     }
-}
 
-void bin(uint16_t data) {
-    bin(highByte(data));
-    space();
-    bin(lowByte(data));
-}
-
-void value(uint16_t data, uint8_t base) {
-    switch (base) {
-        case  2: bin(data);   break;
-        case 10: print(data); break;
-        case 16: hex(data);   break;
-        default: print(F("wrong base"));
+    void hex(uint8_t data) {
+        nibble(data >> 4);
+        nibble(data & 0xf);
     }
-}
-void status(uint8_t s) {
-    for (int8_t i=7; i>=0; --i) {
-        if (i == 4) {
-            print(' ');
-        }
-        print((s >> i) & 1);
-        if (i == 4) {
-            print(' ');
+
+    void hex(uint16_t data) {
+        hex(highByte(data));
+        hex(lowByte(data));
+    }
+
+    void bin(uint8_t data) {
+        for (int8_t i=7; i>=0; --i) {
+            print((data >> i) & 1);
         }
     }
-    if ((s >> 4) & 1) {
-        print(F(" (ERROR)"));
-    } else {
-        print(F(" (OK)"));
+
+    void bin(uint16_t data) {
+        bin(highByte(data));
+        space();
+        bin(lowByte(data));
     }
-    print(F("  burst mode, woc mode, sm mode, error, single bit error, rs, d1, d0"));
-}
 
-void reg(uint8_t adr, uint16_t reg) {
-    print(F("0x"));
-    hex(adr);
-    space();
-    space();
+    void value(uint16_t data, uint8_t base) {
+        switch (base) {
+            case  2: bin(data);   break;
+            case 10: print(data); break;
+            case 16: hex(data);   break;
+            default: print(F("wrong base"));
+        }
+    }
 
-    hex(reg);
-    space();
-    space();
-    bin(reg);
-    space();
-    space();
-}
+    void status(uint8_t s) {
+        for (int8_t i=7; i>=0; --i) {
+            if (i == 4) {
+                print(' ');
+            }
+            print((s >> i) & 1);
+            if (i == 4) {
+                print(' ');
+            }
+        }
+        if ((s >> 4) & 1) {
+            print(F(" (ERROR)"));
+        } else {
+            print(F(" (OK)"));
+        }
+        print(F("  burst mode, woc mode, sm mode, error, single bit error, rs, d1, d0"));
+        if (s == 0xff) {
+            print(F(" -- this might indicate an i2c communication failure!"));
+        }
+    }
 
-void register_0(uint16_t reg) {
-    dump::reg(0, reg);
-    print(F("[15:9] ANA_RESERVED_LOW, [8] BIST, [7] Z_SERIES, [6:4] GAIN_SEL, [3:0] HALLCONF"));
-}
+    void reg(uint8_t adr, uint16_t reg) {
+        print(F("0x"));
+        hex(adr);
+        space();
+        space();
 
-void register_1(uint16_t reg) {
-    dump::reg(1, reg);
-    print(F("[15] TRIG_INT, [14:13] COMM_MODE, [12] WOC_DIFF, [11] EXT_TRIG, [10] TCMP_EN, [9:6] BURST_SEL (zyxt), [5-0] Burst data rate"));
-}
+        hex(reg);
+        space();
+        space();
+        bin(reg);
+        space();
+        space();
+    }
 
-void register_2(uint16_t reg) {
-    dump::reg(2, reg);
-    print(F("[15:13] -, [12:11] OSR2, [10:5] RES_XYZ, [4:2] DIG_FILT, [1:0] OSR"));
-}
+    void register_0(uint16_t reg) {
+        dump::reg(0, reg);
+        print(F("[15:9] ANA_RESERVED_LOW, [8] BIST, [7] Z_SERIES, [6:4] GAIN_SEL, [3:0] HALLCONF"));
+    }
 
-void register_3(uint16_t reg) {
-    dump::reg(3, reg);
-    print(F("[15:8] SENS_TC_HT, [7:0] SENS_TC_LT"));
-}
+    void register_1(uint16_t reg) {
+        dump::reg(1, reg);
+        print(F("[15] TRIG_INT, [14:13] COMM_MODE, [12] WOC_DIFF, [11] EXT_TRIG, [10] TCMP_EN, [9:6] BURST_SEL (zyxt), [5-0] Burst data rate"));
+    }
 
-void register_4(uint16_t reg) {
-    dump::reg(4, reg);
-    print(F("Offset X"));
-}
+    void register_2(uint16_t reg) {
+        dump::reg(2, reg);
+        print(F("[15:13] -, [12:11] OSR2, [10:5] RES_XYZ, [4:2] DIG_FILT, [1:0] OSR"));
+    }
 
-void register_5(uint16_t reg) {
-    dump::reg(5, reg);
-    print(F("Offset Y"));
-}
+    void register_3(uint16_t reg) {
+        dump::reg(3, reg);
+        print(F("[15:8] SENS_TC_HT, [7:0] SENS_TC_LT"));
+    }
 
-void register_6(uint16_t reg) {
-    dump::reg(6, reg);
-    print(F("Offset Z"));
-}
+    void register_4(uint16_t reg) {
+        dump::reg(4, reg);
+        print(F("Offset X"));
+    }
 
-void register_7(uint16_t reg) {
-    dump::reg(7, reg);
-    print(F("WOXY Threshold"));
-}
+    void register_5(uint16_t reg) {
+        dump::reg(5, reg);
+        print(F("Offset Y"));
+    }
 
-void register_8(uint16_t reg) {
-    dump::reg(8, reg);
-    print(F("WOZ Threshold"));
-}
+    void register_6(uint16_t reg) {
+        dump::reg(6, reg);
+        print(F("Offset Z"));
+    }
 
-void register_9(uint16_t reg) {
-    dump::reg(9, reg);
-    print(F("WOT Threshold"));
-}
+    void register_7(uint16_t reg) {
+        dump::reg(7, reg);
+        print(F("WOXY Threshold"));
+    }
+
+    void register_8(uint16_t reg) {
+        dump::reg(8, reg);
+        print(F("WOZ Threshold"));
+    }
+
+    void register_9(uint16_t reg) {
+        dump::reg(9, reg);
+        print(F("WOT Threshold"));
+    }
 }
 
 
 namespace explain {
+    void status(status_t status) {
 
-void status(status_t status) {
-
-    print(F("burst mode: "));
-    println(status.burst_mode);
-    print(F("woc mode:   "));
-    println(status.woc_mode);
-    print(F("sm mode:    "));
-    println(status.sm_mode);
-    print(F("error: "));
-    println(status.err);
-    print(F("single bit error detected: "));
-    println(status.sed);
-    print(F("rs: "));
-    println(status.rs);
-    print(F("d1: "));
-    println(status.d1);
-    print(F("d0: "));
-    println(status.d0);
-}
-
-void register_0(uint16_t reg) {
-    uint16_t data = uint16_t(reg);
-
-    print(F("ANA_RESERVED_LOW: "));
-    println(data >> 9);
-    print(F("BIST: "));
-    println((data >> 8) & 1);
-    print(F("Z_SERIES: "));
-    println((data >> 7) & 1);
-    print(F("GAIN_SEL: "));
-    println((data >> 4) & 7);
-    print(F("HALLCONF: "));
-    println(data & 0xf);
-}
-
-void register_1(uint16_t reg) {
-    uint16_t data = uint16_t(reg);
-
-    print(F("TRIG_INT: "));
-    println(data >> 15);
-    print(F("COMM_MODE: "));
-    println((data >> 13) & 3);
-    print(F("WOC_DIFF: "));
-    println((data >> 12) & 1);
-    print(F("EXT_TRIG: "));
-    println((data >> 11) & 1);
-    print(F("TCMP_EN: "));
-    println(data >> 10 & 1);
-    print(F("BURST_SEL (zyxt): "));
-    print((data >> 9) & 1);
-    print((data >> 8) & 1);
-    print((data >> 7) & 1);
-    println((data >> 6) & 1);
-    print(F("Burst data rate: "));
-    println(data & 0x1f);
-}
-
-void register_2(uint16_t reg) {
-    uint16_t data = uint16_t(reg);
-
-    print(F("unused: "));
-    println((data >> 13) & 0x7);
-    print(F("Temperature Oversampling OSR2: "));
-    println((data >> 11) & 3);
-    print(F("Resolution X Y Z: "));
-    print((data >> 5) & 0x3); space();
-    print((data >> 7) & 0x3); space();
-    println((data >> 9) & 0x3);
-    print(F("Digital Filtering: "));
-    println((data >> 2) & 0x7);
-    print(F("Oversampling: "));
-    println(data & 3);
-}
-
-void register_3(uint16_t reg) {
-    print(F("Sensitivity drift compensation factor for T > Tref: "));
-    println(highByte(reg));
-    print(F("Sensitivity drift compensation factor for T < Tref: "));
-    println(lowByte(reg));
-}
-
-void register_4(uint16_t reg) {
-    print(F("Offset X:"));
-    println(reg);
-}
-
-void register_5(uint16_t reg) {
-    print(F("Offset Y:"));
-    println(reg);
-}
-
-void register_6(uint16_t reg) {
-    print(F("Offset Z:"));
-    println(reg);
-}
-
-void register_7(uint16_t reg) {
-    print(F("WOXY Threshold:"));
-    println(reg);
-}
-
-void register_8(uint16_t reg) {
-    print(F("WOZ Threshold:"));
-    println(reg);
-}
-
-void register_9(uint16_t reg) {
-    print(F("WOT Threshold:"));
-    println(reg);
-}
-
-void separator_as_needed(boolean has_predecessor) {
-    if (has_predecessor and output_mode.style != output_mode_t::style_t::HEX_RAW) {
-        print(',');
+        print(F("burst mode: "));
+        println(status.burst_mode);
+        print(F("woc mode:   "));
+        println(status.woc_mode);
+        print(F("sm mode:    "));
+        println(status.sm_mode);
+        print(F("error: "));
+        println(status.err);
+        print(F("single bit error detected: "));
+        println(status.sed);
+        print(F("rs: "));
+        println(status.rs);
+        print(F("d1: "));
+        println(status.d1);
+        print(F("d0: "));
+        println(status.d0);
+        if (uint8_t(status) == 0xff) {
+            println(F("This might indicate an i2c communication failure!"));
+        }
     }
-};
 
-void axis(uint8_t zyxt) {
-    boolean has_predecessor = false;
+    void register_0(uint16_t reg) {
+        uint16_t data = uint16_t(reg);
 
-    if (zyxt & AXIS_MASK::X) {
-        print('X');
-        has_predecessor = true;
+        print(F("ANA_RESERVED_LOW: "));
+        println(data >> 9);
+        print(F("BIST: "));
+        println((data >> 8) & 1);
+        print(F("Z_SERIES: "));
+        println((data >> 7) & 1);
+        print(F("GAIN_SEL: "));
+        println((data >> 4) & 7);
+        print(F("HALLCONF: "));
+        println(data & 0xf);
     }
-    if (zyxt & AXIS_MASK::Y) {
-        separator_as_needed(has_predecessor);
-        print('Y');
-        has_predecessor = true;
-    }
-    if (zyxt & AXIS_MASK::Z) {
-        separator_as_needed(has_predecessor);
-        print('Z');
-        has_predecessor = true;
-    }
-    if (zyxt & AXIS_MASK::T) {
-        separator_as_needed(has_predecessor);
-        print('T');
-        has_predecessor = true;
-    }
-    if (has_predecessor) {
-        println();
-    } else {
-        println('-');
-    }
-}
 
-void data(uint8_t zyxt, zyxt_t d) {
-    const uint8_t base = output_mode.style == output_mode_t::DEC_CSV  ? 10 :
-                                                                        16;
-    boolean has_predecessor = false;
-    if (zyxt & AXIS_MASK::X) {
-        dump::value(d.x, base);
-        has_predecessor = true;
+    void register_1(uint16_t reg) {
+        uint16_t data = uint16_t(reg);
+
+        print(F("TRIG_INT: "));
+        println(data >> 15);
+        print(F("COMM_MODE: "));
+        println((data >> 13) & 3);
+        print(F("WOC_DIFF: "));
+        println((data >> 12) & 1);
+        print(F("EXT_TRIG: "));
+        println((data >> 11) & 1);
+        print(F("TCMP_EN: "));
+        println(data >> 10 & 1);
+        print(F("BURST_SEL (zyxt): "));
+        print((data >> 9) & 1);
+        print((data >> 8) & 1);
+        print((data >> 7) & 1);
+        println((data >> 6) & 1);
+        print(F("Burst data rate: "));
+        println(data & 0x1f);
     }
-    if (zyxt & AXIS_MASK::Y) {
-        separator_as_needed(has_predecessor);
-        dump::value(d.y, base);
-        has_predecessor = true;
+
+    void register_2(uint16_t reg) {
+        uint16_t data = uint16_t(reg);
+
+        print(F("unused: "));
+        println((data >> 13) & 0x7);
+        print(F("Temperature Oversampling OSR2: "));
+        println((data >> 11) & 3);
+        print(F("Resolution X Y Z: "));
+        print((data >> 5) & 0x3); space();
+        print((data >> 7) & 0x3); space();
+        println((data >> 9) & 0x3);
+        print(F("Digital Filtering: "));
+        println((data >> 2) & 0x7);
+        print(F("Oversampling: "));
+        println(data & 3);
     }
-    if (zyxt & AXIS_MASK::Z) {
-        separator_as_needed(has_predecessor);
-        dump::value(d.z, base);
-        has_predecessor = true;
+
+    void register_3(uint16_t reg) {
+        print(F("Sensitivity drift compensation factor for T > Tref: "));
+        println(highByte(reg));
+        print(F("Sensitivity drift compensation factor for T < Tref: "));
+        println(lowByte(reg));
     }
-    if (zyxt & AXIS_MASK::T) {
-        separator_as_needed(has_predecessor);
-        dump::value(d.t, base);
-        has_predecessor = true;
+
+    void register_4(uint16_t reg) {
+        print(F("Offset X:"));
+        println(reg);
     }
-    if (has_predecessor) {
-        println();
-    } else {
-        println('-');
+
+    void register_5(uint16_t reg) {
+        print(F("Offset Y:"));
+        println(reg);
     }
-}
+
+    void register_6(uint16_t reg) {
+        print(F("Offset Z:"));
+        println(reg);
+    }
+
+    void register_7(uint16_t reg) {
+        print(F("WOXY Threshold:"));
+        println(reg);
+    }
+
+    void register_8(uint16_t reg) {
+        print(F("WOZ Threshold:"));
+        println(reg);
+    }
+
+    void register_9(uint16_t reg) {
+        print(F("WOT Threshold:"));
+        println(reg);
+    }
+
+    void separator_as_needed(boolean has_predecessor) {
+        if (has_predecessor and output_mode.style != output_mode_t::style_t::HEX_RAW) {
+            print(',');
+        }
+    };
+
+    void axis(uint8_t zyxt) {
+        boolean has_predecessor = false;
+
+        if (zyxt & AXIS_MASK::X) {
+            print('X');
+            has_predecessor = true;
+        }
+        if (zyxt & AXIS_MASK::Y) {
+            separator_as_needed(has_predecessor);
+            print('Y');
+            has_predecessor = true;
+        }
+        if (zyxt & AXIS_MASK::Z) {
+            separator_as_needed(has_predecessor);
+            print('Z');
+            has_predecessor = true;
+        }
+        if (zyxt & AXIS_MASK::T) {
+            separator_as_needed(has_predecessor);
+            print('T');
+            has_predecessor = true;
+        }
+        if (has_predecessor) {
+            println();
+        } else {
+            println('-');
+        }
+    }
+
+    void data(uint8_t zyxt, zyxt_t d) {
+        const uint8_t base = output_mode.style == output_mode_t::DEC_CSV  ? 10 :
+                                                                            16;
+        boolean has_predecessor = false;
+        if (zyxt & AXIS_MASK::X) {
+            dump::value(d.x, base);
+            has_predecessor = true;
+        }
+        if (zyxt & AXIS_MASK::Y) {
+            separator_as_needed(has_predecessor);
+            dump::value(d.y, base);
+            has_predecessor = true;
+        }
+        if (zyxt & AXIS_MASK::Z) {
+            separator_as_needed(has_predecessor);
+            dump::value(d.z, base);
+            has_predecessor = true;
+        }
+        if (zyxt & AXIS_MASK::T) {
+            separator_as_needed(has_predecessor);
+            dump::value(d.t, base);
+            has_predecessor = true;
+        }
+        if (has_predecessor) {
+            println();
+        } else {
+            println('-');
+        }
+    }
 }
 
 namespace show {
+    void status(status_t s, boolean newline = true) {
+        // Notice that newline will only be output IF AND ONLY IF
+        // status prints output. So this is NOT the same as
+        // calling status() and then println()
 
-void status(status_t s, boolean newline = true) {
-    // Notice that newline will only be output IF AND ONLY IF
-    // status prints output. So this is NOT the same as
-    // calling status() and then println()
+        if (output_mode.verbosity == output_mode_t::QUIET) { return; }
 
-    if (output_mode.verbosity == output_mode_t::QUIET) { return; }
-
-    if (output_mode.verbosity == output_mode_t::VERBOSE || s.error()) {
-        dump::status(uint8_t(s));
-        if (newline) { println(); }
-    }
-}
-
-void registers(uint8_t lo, uint8_t hi, bool dump = true, bool explain = false) {
-    // dump registers (Datasheet section 9)
-
-    for (uint8_t i=lo; i <= hi and i < 0x40; ++i) {
-        uint16_t reg;
-        status_t status;
-        status = MLX::readRegister(i, reg);
-        if (status.ok()) {
-            if (dump) {
-                switch (i) {
-                    case 0: dump::register_0(reg); break;
-                    case 1: dump::register_1(reg); break;
-                    case 2: dump::register_2(reg); break;
-                    case 3: dump::register_3(reg); break;
-                    case 4: dump::register_4(reg); break;
-                    case 5: dump::register_5(reg); break;
-                    case 6: dump::register_6(reg); break;
-                    case 7: dump::register_7(reg); break;
-                    case 8: dump::register_8(reg); break;
-                    case 9: dump::register_9(reg); break;
-                    default: dump::reg(i, reg);
-                }
-                // no, we will not dump the status
-                // this clutters the display to much
-            }
-            if (explain) {
-                switch (i) {
-                    case 0: explain::register_0(reg); break;
-                    case 1: explain::register_1(reg); break;
-                    case 2: explain::register_2(reg); break;
-                    case 3: explain::register_3(reg); break;
-                    case 4: explain::register_4(reg); break;
-                    case 5: explain::register_5(reg); break;
-                    case 6: explain::register_6(reg); break;
-                    case 7: explain::register_7(reg); break;
-                    case 8: explain::register_8(reg); break;
-                    case 9: explain::register_9(reg); break;
-                    default: if (!dump) dump::reg(i, reg);  println();
-                }
-                show::status(status);
-            }
-        } else {
-            dump::reg(i, reg);
-            print(F("read failure  "));
-            show::status(status, false);
+        if (output_mode.verbosity == output_mode_t::VERBOSE || s.error()) {
+            dump::status(uint8_t(s));
+            if (newline) { println(); }
         }
-        println();
     }
-}
 
-void measurement(uint8_t axis_mask) {
-    zyxt_t data;
-    if (output_mode.state == output_mode_t::IDLE) { return; }
+    void registers(uint8_t lo, uint8_t hi, bool dump = true, bool explain = false) {
+        // dump registers (Datasheet section 9)
 
-    if (output_mode.state == output_mode_t::READ ||
-        output_mode.read_behaviour == output_mode_t::CONTINUOUS ||
-        output_mode.read_behaviour == output_mode_t::AUTO &&
-        output_mode.state != output_mode_t::IDLE &&
-        (  drdy_pin < 0 ||
-           drdy_pin >= 0 && digitalRead(drdy_pin))
-        ) {
-        // attention if WOC is selected AND drdy_pin < 0 and
-        // float output is selected we have to ensure that this is not going to block
-        // however this is close to impossible without a drdy pin.
-        // workaround: if AUTO / WOC is selected withoput drdy pin
-        // then read the data but only output it if there is no error.
-
-        if (drdy_pin < 0 &&
-            output_mode.read_behaviour == output_mode_t::AUTO &&
-            output_mode.state != output_mode_t::READ) {
-            // should be good enough for our purposes
-            delay(500);
-        } else {
-            if (output_mode.read_behaviour == output_mode_t::AUTO ||
-                output_mode.read_behaviour != output_mode_t::CONTINUOUS &&
-                output_mode.state != output_mode_t::IDLE ) {
-                delayMicroseconds(100);
-                for (uint32_t ms = millis(); (millis()-1000 <= ms) && !MLX::dataReady(); );
+        for (uint8_t i=lo; i <= hi and i < 0x40; ++i) {
+            uint16_t reg;
+            status_t status;
+            status = MLX::readRegister(i, reg);
+            if (status.ok()) {
+                if (dump) {
+                    switch (i) {
+                        case 0: dump::register_0(reg); break;
+                        case 1: dump::register_1(reg); break;
+                        case 2: dump::register_2(reg); break;
+                        case 3: dump::register_3(reg); break;
+                        case 4: dump::register_4(reg); break;
+                        case 5: dump::register_5(reg); break;
+                        case 6: dump::register_6(reg); break;
+                        case 7: dump::register_7(reg); break;
+                        case 8: dump::register_8(reg); break;
+                        case 9: dump::register_9(reg); break;
+                        default: dump::reg(i, reg);
+                    }
+                    // no, we will not dump the status
+                    // this clutters the display to much
+                }
+                if (explain) {
+                    switch (i) {
+                        case 0: explain::register_0(reg); break;
+                        case 1: explain::register_1(reg); break;
+                        case 2: explain::register_2(reg); break;
+                        case 3: explain::register_3(reg); break;
+                        case 4: explain::register_4(reg); break;
+                        case 5: explain::register_5(reg); break;
+                        case 6: explain::register_6(reg); break;
+                        case 7: explain::register_7(reg); break;
+                        case 8: explain::register_8(reg); break;
+                        case 9: explain::register_9(reg); break;
+                        default: if (!dump) dump::reg(i, reg);  println();
+                    }
+                    show::status(status);
+                }
+            } else {
+                dump::reg(i, reg);
+                print(F("read failure  "));
+                show::status(status, false);
             }
+            println();
         }
+    }
 
+    void measurement(uint8_t axis_mask) {
         zyxt_t data;
-        const status_t status = MLX::readMeasurement(axis_mask, data);
-
-        if (output_mode.timestamps == 1) {
-            timer::set_new_ms();
-            const uint32_t elapsed = timer::elapsed();
-            timer::set_old_ms();
-
-            print(millis());
-            print(F(", "));
-            println(elapsed);
-        }
-
-        show::status(status);
-        explain::axis(axis_mask & 0x0f);
-        explain::data(axis_mask, data);
+        if (output_mode.state == output_mode_t::IDLE) { return; }
 
         if (output_mode.state == output_mode_t::READ ||
-            output_mode.state == output_mode_t::START_MEASUREMENT &&
-            output_mode.read_behaviour != output_mode_t::CONTINUOUS) {
-            output_mode.state = output_mode_t::IDLE;
+            output_mode.read_behaviour == output_mode_t::CONTINUOUS ||
+            output_mode.read_behaviour == output_mode_t::AUTO &&
+            output_mode.state != output_mode_t::IDLE &&
+            (  drdy_pin < 0 ||
+            drdy_pin >= 0 && digitalRead(drdy_pin))
+            ) {
+            // attention if WOC is selected AND drdy_pin < 0 and
+            // float output is selected we have to ensure that this is not going to block
+            // however this is close to impossible without a drdy pin.
+            // workaround: if AUTO / WOC is selected withoput drdy pin
+            // then read the data but only output it if there is no error.
+
+            if (drdy_pin < 0 &&
+                output_mode.read_behaviour == output_mode_t::AUTO &&
+                output_mode.state != output_mode_t::READ) {
+                // should be good enough for our purposes
+                delay(500);
+            } else {
+                if (output_mode.read_behaviour == output_mode_t::AUTO ||
+                    output_mode.read_behaviour != output_mode_t::CONTINUOUS &&
+                    output_mode.state != output_mode_t::IDLE ) {
+                    delayMicroseconds(100);
+                    for (uint32_t ms = millis(); (millis()-1000 <= ms) && !MLX::dataReady(); );
+                }
+            }
+
+            zyxt_t data;
+            const status_t status = MLX::readMeasurement(axis_mask, data);
+
+            if (output_mode.timestamps == 1) {
+                timer::set_new_ms();
+                const uint32_t elapsed = timer::elapsed();
+                timer::set_old_ms();
+
+                print(millis());
+                print(F(", "));
+                println(elapsed);
+            }
+
+            show::status(status);
+            explain::axis(axis_mask & 0x0f);
+            explain::data(axis_mask, data);
+
+            if (output_mode.state == output_mode_t::READ ||
+                output_mode.state == output_mode_t::START_MEASUREMENT &&
+                output_mode.read_behaviour != output_mode_t::CONTINUOUS) {
+                output_mode.state = output_mode_t::IDLE;
+            }
         }
     }
-}
 }
 
 void help() {
